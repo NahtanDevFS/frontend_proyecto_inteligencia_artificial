@@ -1,12 +1,17 @@
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
   background-color: #0056b3;
   color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: system-ui, sans-serif;
+  position: relative;
+  z-index: 50;
+}
+
+.navbarContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
 }
 
 .brand {
@@ -19,6 +24,7 @@
   display: flex;
   gap: 1.5rem;
   align-items: center;
+  padding: 0 2rem 1rem 2rem;
 }
 
 .link {
@@ -27,6 +33,7 @@
   font-weight: 500;
   transition: color 0.2s;
   padding: 0.5rem;
+  border-bottom: 2px solid transparent;
 }
 
 .link:hover,
@@ -50,4 +57,74 @@
   background-color: #dc2626;
   color: white;
   border-color: #dc2626;
+}
+
+.menuToggle {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.hamburgerLine {
+  display: block;
+  width: 25px;
+  height: 3px;
+  margin: 5px auto;
+  background-color: #ffffff;
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+@media screen and (max-width: 768px) {
+  .navbarContainer {
+    padding: 1rem;
+  }
+
+  .menuToggle {
+    display: block;
+  }
+
+  .navLinks {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #0056b3;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .navLinks.navLinksOpen {
+    display: flex;
+  }
+
+  .link {
+    width: 100%;
+    padding: 0.75rem 0;
+  }
+
+  .logoutBtn {
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+  }
+
+  .navLinks {
+    padding: 0 2rem 0 0;
+  }
 }

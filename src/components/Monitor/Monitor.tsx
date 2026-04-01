@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { getCamerasApi } from "@/services/cameras.service";
 import styles from "./Monitor.module.css";
 
 interface Detection {
@@ -18,7 +19,26 @@ interface Camera {
   id: string;
   location_name: string;
   stream_url: string;
+  status: string;
 }
+
+interface WSData {
+  status: string;
+  message?: string;
+  image?: string;
+  detections: Detection[];
+}
+
+const getWsUrl = (cameraId: string, token: string) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  const wsBaseUrl = apiUrl.replace(/^http/, "ws");
+
+  const cleanBaseUrl = wsBaseUrl.endsWith("/")
+    ? wsBaseUrl.slice(0, -1)
+    : wsBaseUrl;
+
+  return `${cleanBaseUrl}/ws/video-stream/${cameraId}?token=${token}`;
+};
 
 function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -34,9 +54,8 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
     setHasError(false);
     setErrorMessage("");
 
-    const ws = new WebSocket(
-      `ws://127.0.0.1:8000/ws/video-stream/${camera.id}?token=${token}`,
-    );
+    const wsUrl = getWsUrl(camera.id, token);
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => setIsConnected(true);
@@ -48,11 +67,11 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
     };
 
     ws.onmessage = (event: MessageEvent) => {
-      const data = JSON.parse(event.data);
+      const data: WSData = JSON.parse(event.data);
 
       if (data.status === "error") {
         setHasError(true);
-        setErrorMessage(data.message);
+        setErrorMessage(data.message || "Error desconocido");
         return;
       }
 
@@ -70,7 +89,7 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
     };
   }, [connectWebSocket]);
 
-  const renderFrameAndDetections = (data: any) => {
+  const renderFrameAndDetections = (data: WSData) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -83,28 +102,30 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      data.detections.forEach((det: Detection) => {
-        const [x_c, y_c, w, h] = det.box;
-        const x = x_c - w / 2;
-        const y = y_c - h / 2;
+      if (data.detections && Array.isArray(data.detections)) {
+        data.detections.forEach((det: Detection) => {
+          const [x_c, y_c, w, h] = det.box;
+          const x = x_c - w / 2;
+          const y = y_c - h / 2;
 
-        ctx.strokeStyle =
-          det.status === "alerta"
-            ? "#dc2626"
-            : det.status === "epp_detectado"
-              ? "#3b82f6"
-              : "#16a34a";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x, y, w, h);
+          ctx.strokeStyle =
+            det.status === "alerta"
+              ? "#dc2626"
+              : det.status === "epp_detectado"
+                ? "#3b82f6"
+                : "#16a34a";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(x, y, w, h);
 
-        ctx.fillStyle = ctx.strokeStyle;
-        ctx.font = "16px Arial";
-        ctx.fillText(
-          `${det.class_name} (ID: ${det.track_id || "N/A"}) - ${det.status}`,
-          x,
-          y - 5,
-        );
-      });
+          ctx.fillStyle = ctx.strokeStyle;
+          ctx.font = "16px Arial";
+          ctx.fillText(
+            `${det.class_name} (ID: ${det.track_id || "N/A"}) - ${det.status}`,
+            x,
+            y - 5,
+          );
+        });
+      }
     };
   };
 
@@ -113,10 +134,11 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
       <h3 className={styles.cameraTitle}>
         {camera.location_name}
         <span
-          style={{
-            fontSize: "0.8rem",
-            color: isConnected && !hasError ? "green" : "red",
-          }}
+          className={`${styles.statusIndicator} ${
+            isConnected && !hasError
+              ? styles.statusOnline
+              : styles.statusOffline
+          }`}
         >
           ● {isConnected && !hasError ? "En Vivo" : "Desconectado"}
         </span>
@@ -132,9 +154,9 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
 
         {hasError && (
           <div className={styles.errorOverlay}>
-            <p>⚠️ {errorMessage}</p>
+            <p>{errorMessage}</p>
             <button className={styles.reconnectBtn} onClick={connectWebSocket}>
-              ↻ Intentar Reconectar
+              Intentar Reconectar
             </button>
           </div>
         )}
@@ -158,15 +180,14 @@ export default function Monitor() {
 
     const fetchCameras = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/cameras/", {
-          headers: { Authorization: `Bearer ${storedToken}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCameras(data.filter((c: any) => c.status === "active"));
+        const data = await getCamerasApi(storedToken);
+        setCameras(data.filter((c: Camera) => c.status === "active"));
+      } catch (err: unknown) {
+        if (err instanceof Error && err.message === "Unauthorized") {
+          router.push("/login");
+        } else {
+          console.error("Error obteniendo cámaras", err);
         }
-      } catch (err) {
-        console.error("Error obteniendo cámaras", err);
       }
     };
 
@@ -180,7 +201,7 @@ export default function Monitor() {
       <h1 className={styles.title}>Panel de Supervisión Múltiple</h1>
 
       {cameras.length === 0 ? (
-        <p style={{ textAlign: "center" }}>
+        <p className={styles.emptyState}>
           No hay cámaras activas configuradas. Ve a la pestaña de Cámaras para
           agregar una.
         </p>
