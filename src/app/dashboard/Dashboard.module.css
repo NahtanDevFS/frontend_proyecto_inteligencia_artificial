@@ -1,0 +1,89 @@
+.dashboardContainer {
+  padding: 2rem;
+  background-color: #f0f6ff;
+  min-height: 100vh;
+  font-family: system-ui, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  color: #0056b3;
+  border-bottom: 2px solid #cce0ff;
+  padding-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e6f0ff;
+  display: flex;
+  flex-direction: column;
+}
+
+.imageContainer {
+  width: 100%;
+  height: 240px;
+  background-color: #e5e7eb;
+  overflow: hidden;
+}
+
+.evidenceImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardContent {
+  padding: 1.25rem;
+}
+
+.timestamp {
+  font-size: 0.875rem;
+  color: #666666;
+  margin-bottom: 0.5rem;
+}
+
+.duration {
+  font-weight: bold;
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.detailsList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #333333;
+  margin-bottom: 0.25rem;
+}
+
+.missingIcon {
+  color: #dc2626;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.loading {
+  text-align: center;
+  color: #0056b3;
+  font-size: 1.2rem;
+  margin-top: 3rem;
+}
