@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import {
+  getCamerasApi,
+  createCameraApi,
+  updateCameraApi,
+  deleteCameraApi,
+} from "@/services/cameras.service";
 import styles from "./Cameras.module.css";
 
 interface Camera {
@@ -26,54 +32,63 @@ export default function CamerasPage() {
 
   const fetchCameras = async () => {
     const token = getToken();
-    if (!token) return router.push("/login");
-
-    const res = await fetch("http://127.0.0.1:8000/cameras/", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setCameras(data);
-    } else if (res.status === 401) {
+    if (!token) {
       router.push("/login");
+      return;
+    }
+
+    try {
+      const data = await getCamerasApi(token);
+      setCameras(data);
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === "Unauthorized") {
+        router.push("/login");
+      } else {
+        console.error(error);
+        alert("No se pudieron cargar las cámaras.");
+      }
     }
   };
 
   useEffect(() => {
     fetchCameras();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     const token = getToken();
-    const res = await fetch("http://127.0.0.1:8000/cameras/", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    if (!token) return;
+
+    try {
+      await createCameraApi(token, {
         location_name: newLocation,
         stream_url: newStreamUrl || "0",
         status: "active",
-      }),
-    });
+      });
 
-    if (res.ok) {
       setNewLocation("");
       setNewStreamUrl("");
       fetchCameras();
+    } catch (error) {
+      console.error(error);
+      alert("Error al intentar crear la cámara.");
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar esta cámara?")) return;
+    if (!window.confirm("¿Estás seguro de eliminar esta cámara?")) return;
+
     const token = getToken();
-    const res = await fetch(`http://127.0.0.1:8000/cameras/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) fetchCameras();
+    if (!token) return;
+
+    try {
+      await deleteCameraApi(token, id);
+      fetchCameras();
+    } catch (error) {
+      console.error(error);
+      alert("Error al intentar eliminar la cámara.");
+    }
   };
 
   const startEdit = (cam: Camera) => {
@@ -84,21 +99,19 @@ export default function CamerasPage() {
 
   const handleUpdate = async (id: string) => {
     const token = getToken();
-    const res = await fetch(`http://127.0.0.1:8000/cameras/${id}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    if (!token) return;
+
+    try {
+      await updateCameraApi(token, id, {
         location_name: editLocation,
         stream_url: editStreamUrl,
-      }),
-    });
+      });
 
-    if (res.ok) {
       setEditingId(null);
       fetchCameras();
+    } catch (error) {
+      console.error(error);
+      alert("Error al intentar actualizar la cámara.");
     }
   };
 
@@ -109,10 +122,8 @@ export default function CamerasPage() {
       </header>
 
       <div className={styles.grid}>
-        <div className={styles.card} style={{ border: "2px dashed #0056b3" }}>
-          <h3 style={{ color: "#0056b3", marginTop: 0 }}>
-            Añadir Nueva Cámara
-          </h3>
+        <div className={`${styles.card} ${styles.cardNew}`}>
+          <h3 className={styles.cardNewTitle}>Añadir Nueva Cámara</h3>
           <form onSubmit={handleCreate}>
             <div className={styles.formGroup}>
               <label className={styles.label}>
@@ -183,14 +194,8 @@ export default function CamerasPage() {
               </div>
             ) : (
               <div>
-                <h3 style={{ marginTop: 0 }}>📍 {cam.location_name}</h3>
-                <p
-                  style={{
-                    fontSize: "0.875rem",
-                    color: "#666",
-                    wordBreak: "break-all",
-                  }}
-                >
+                <h3 className={styles.cameraTitle}>{cam.location_name}</h3>
+                <p className={styles.streamUrlText}>
                   <strong>URL:</strong> {cam.stream_url || "Ninguna"}
                 </p>
                 <div className={styles.buttonRow}>

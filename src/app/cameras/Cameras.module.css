@@ -82,3 +82,27 @@
   cursor: pointer;
   flex: 1;
 }
+
+.cardNew {
+  border: 2px dashed #0056b3;
+}
+
+.cardNewTitle {
+  color: #0056b3;
+  margin-top: 0;
+}
+
+.btnFullWidth {
+  width: 100%;
+}
+
+.cameraTitle {
+  color: #272727;
+  margin-top: 0;
+}
+
+.streamUrlText {
+  font-size: 0.875rem;
+  color: #272727;
+  word-break: break-all;
+}

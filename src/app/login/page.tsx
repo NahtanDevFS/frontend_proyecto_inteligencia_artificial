@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { loginWithCredentials } from "@/services/auth.service";
 import styles from "./Login.module.css";
 
 export default function LoginPage() {
@@ -18,29 +19,17 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const formData = new URLSearchParams();
-      formData.append("username", username);
-      formData.append("password", password);
-
-      const response = await fetch("http://127.0.0.1:8000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: formData.toString(),
-      });
-
-      if (!response.ok) {
-        throw new Error("Usuario o contraseña incorrectos");
-      }
-
-      const data = await response.json();
+      const data = await loginWithCredentials(username, password);
 
       localStorage.setItem("vision_guard_token", data.access_token);
 
       router.push("/");
-    } catch (err: any) {
-      setError(err.message || "Ocurrió un error de conexión con el servidor.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Ocurrió un error inesperado de conexión con el servidor.");
+      }
     } finally {
       setIsLoading(false);
     }
