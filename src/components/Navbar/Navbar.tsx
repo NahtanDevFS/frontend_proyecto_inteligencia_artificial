@@ -26,7 +26,7 @@ export default function Navbar() {
 
   return (
     <nav className={styles.navbar}>
-      <div className={styles.brand}>🛡️ Vision Guard</div>
+      <div className={styles.brand}>Vision Guard</div>
 
       {isAuthenticated && (
         <div className={styles.navLinks}>
@@ -35,6 +35,13 @@ export default function Navbar() {
             className={`${styles.link} ${pathname === "/" ? styles.activeLink : ""}`}
           >
             Monitor en Vivo
+          </Link>
+
+          <Link
+            href="/cameras"
+            className={`${styles.link} ${pathname === "/cameras" ? styles.activeLink : ""}`}
+          >
+            Cámaras
           </Link>
 
           <Link
