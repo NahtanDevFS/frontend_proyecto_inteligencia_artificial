@@ -56,7 +56,7 @@ export default function Navbar() {
             onClick={closeMenu}
             className={`${styles.link} ${pathname === "/" ? styles.activeLink : ""}`}
           >
-            Monitor en Vivo
+            Monitor en vivo
           </Link>
 
           <Link
@@ -72,7 +72,7 @@ export default function Navbar() {
             onClick={closeMenu}
             className={`${styles.link} ${pathname === "/dashboard" ? styles.activeLink : ""}`}
           >
-            Historial de Alertas
+            Historial de alertas
           </Link>
 
           <button onClick={handleLogout} className={styles.logoutBtn}>

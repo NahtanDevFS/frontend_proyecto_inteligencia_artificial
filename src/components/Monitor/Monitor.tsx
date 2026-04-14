@@ -156,7 +156,7 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
           <div className={styles.errorOverlay}>
             <p>{errorMessage}</p>
             <button className={styles.reconnectBtn} onClick={connectWebSocket}>
-              Intentar Reconectar
+              Intentar reconectar
             </button>
           </div>
         )}
@@ -198,7 +198,7 @@ export default function Monitor() {
 
   return (
     <div className={styles.monitorContainer}>
-      <h1 className={styles.title}>Panel de Supervisión Múltiple</h1>
+      <h1 className={styles.title}>Panel de supervisión múltiple</h1>
 
       {cameras.length === 0 ? (
         <p className={styles.emptyState}>

@@ -118,7 +118,7 @@ export default function CamerasPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1>Gestión de Cámaras</h1>
+        <h1>Gestión de cámaras</h1>
       </header>
 
       <div className={styles.grid}>
@@ -127,7 +127,7 @@ export default function CamerasPage() {
           <form onSubmit={handleCreate}>
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                Ubicación (Ej. Entrada Principal)
+                Ubicación (ejemplo: entrada principal)
               </label>
               <input
                 required
@@ -138,7 +138,7 @@ export default function CamerasPage() {
             </div>
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                URL de Stream (Ej. http://192.168.1.5/video)
+                URL de stream (Ej. http://192.168.1.5/video)
               </label>
               <input
                 className={styles.input}
@@ -152,7 +152,7 @@ export default function CamerasPage() {
               className={styles.btnPrimary}
               style={{ width: "100%" }}
             >
-              + Guardar Cámara
+              + Guardar cámara
             </button>
           </form>
         </div>
@@ -170,7 +170,7 @@ export default function CamerasPage() {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>URL de Stream</label>
+                  <label className={styles.label}>URL de stream</label>
                   <input
                     className={styles.input}
                     value={editStreamUrl}
