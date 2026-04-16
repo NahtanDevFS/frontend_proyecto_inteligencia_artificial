@@ -120,7 +120,7 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
           ctx.fillStyle = ctx.strokeStyle;
           ctx.font = "16px Arial";
           ctx.fillText(
-            `${det.class_name} (ID: ${det.track_id || "N/A"}) - ${det.status}`,
+            `${det.class_name} (ID: ${det.track_id || "N/A"}) ${Math.round(det.confidence * 100)}% - ${det.status}`,
             x,
             y - 5,
           );
