@@ -39,6 +39,8 @@ export default function DashboardPage() {
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const getToken = () => localStorage.getItem("vision_guard_token");
 
   useEffect(() => {
@@ -111,6 +113,11 @@ export default function DashboardPage() {
     return type;
   };
 
+  const getCameraName = (cameraId: string) => {
+    const camera = cameras.find((c) => c.id === cameraId);
+    return camera ? camera.location_name : "Cámara desconocida";
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>Historial de Incidencias</h1>
@@ -165,11 +172,21 @@ export default function DashboardPage() {
         ) : (
           alerts.map((alert) => (
             <div key={alert.id} className={styles.card}>
-              <SecureImage
-                url={getImageUrl(alert.evidence_url)}
-                alt="Evidencia"
-                className={styles.image}
-              />
+              <div
+                onClick={(e) => {
+                  const img = e.currentTarget.querySelector("img");
+                  if (img && img.src.startsWith("blob:")) {
+                    setSelectedImage(img.src);
+                  }
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <SecureImage
+                  url={getImageUrl(alert.evidence_url)}
+                  alt="Evidencia"
+                  className={styles.image}
+                />
+              </div>
 
               <div className={styles.cardBody}>
                 <p className={styles.timestamp}>
@@ -178,6 +195,9 @@ export default function DashboardPage() {
                     dateStyle: "medium",
                     timeStyle: "medium",
                   })}
+                </p>
+                <p className={styles.cameraName}>
+                  {getCameraName(alert.camera_id)}
                 </p>
 
                 <div className={styles.badges}>
@@ -203,6 +223,18 @@ export default function DashboardPage() {
           ))
         )}
       </div>
+      {selectedImage && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setSelectedImage(null)}
+        >
+          <img
+            src={selectedImage}
+            alt="Evidencia ampliada"
+            className={styles.modalImage}
+          />
+        </div>
+      )}
     </div>
   );
 }
