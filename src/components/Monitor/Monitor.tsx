@@ -136,13 +136,13 @@ function CameraFeed({ camera, token }: { camera: Camera; token: string }) {
             <span
               className={`${styles.statusIndicator} ${isConnected && !hasError ? styles.statusOnline : styles.statusOffline}`}
             >
-              ● {isConnected && !hasError ? "En Vivo" : "Desconectado"}
+              {isConnected && !hasError ? "En Vivo" : "Desconectado"}
             </span>
             <button
               className={styles.fullscreenBtn}
               onClick={() => setIsFullscreen(true)}
             >
-              ⛶ Ampliar
+              Ampliar
             </button>
           </div>
         </h3>
