@@ -138,7 +138,7 @@ export default function CamerasPage() {
             </div>
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                URL de stream (Ej. http://192.168.1.5/video)
+                URL de stream (Ej. http://192.168.1.5:8080/video)
               </label>
               <input
                 className={styles.input}
